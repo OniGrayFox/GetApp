@@ -1,8 +1,30 @@
 from django.shortcuts import render
-from .forms import GetAppForm
-# Create your views here.
+from django.http import HttpResponseRedirect
+from django.http import HttpResponse
+from .forms import NameForm
+
+
 def get_app(request):
-    if request == "POST":
-        forms = GetAppForm(request)
-    args = {forms: "forms"}
-    return render(args, "index.html", request)
+    values = []
+    if request.method == "POST":
+        # create a form instance and populate it with data from the request:
+        form = NameForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            data = form.cleaned_data
+            keys, values = zip(*data.items())
+
+
+            return HttpResponseRedirect(f"?name={values[0]}&message={values[1]}")
+
+
+    else:
+        form = NameForm()
+    args = {"form": form,
+            "name":request.GET.get("name"),
+            "message": request.GET.get("message")
+            }
+
+    return render(request, "index.html", args)
+
+
